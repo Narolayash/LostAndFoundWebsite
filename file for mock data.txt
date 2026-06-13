@@ -1,0 +1,7 @@
+node scripts/addMockData.js
+
+
+node scripts/clearData.js
+
+
+node scripts/testSuite.js
