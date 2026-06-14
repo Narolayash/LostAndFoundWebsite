@@ -20,8 +20,9 @@ export default async function FoundPage({ searchParams }: FoundPageProps) {
   const category = params.category || '';
   const sort = params.sort || 'latest';
 
-  let items: any[] = [];
   let dbError = false;
+  let isMissingUri = false;
+  let items: any[] = [];
 
   try {
     await dbConnect();
@@ -47,6 +48,7 @@ export default async function FoundPage({ searchParams }: FoundPageProps) {
   } catch (error) {
     console.error('Error loading found items:', error);
     dbError = true;
+    isMissingUri = !process.env.MONGODB_URI;
   }
 
   return (
@@ -69,7 +71,9 @@ export default async function FoundPage({ searchParams }: FoundPageProps) {
 
       {dbError ? (
         <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center text-destructive">
-          Failed to establish database connection. Please check your config in `.env.local`.
+          {isMissingUri 
+            ? "Failed to establish database connection. Please check your config in `.env.local`."
+            : "Failed to connect to the database. If hosted on a live server, please verify MongoDB Atlas IP Whitelist (allow access from 0.0.0.0/0) and check your database credentials."}
         </div>
       ) : (
         <>

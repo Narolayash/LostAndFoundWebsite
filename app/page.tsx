@@ -12,6 +12,7 @@ export default async function Home() {
   let totalReturned = 0;
   let latestItems: any[] = [];
   let dbError = false;
+  let isMissingUri = false;
 
   try {
     await dbConnect();
@@ -33,6 +34,7 @@ export default async function Home() {
   } catch (error) {
     console.error('Database connection error in home page:', error);
     dbError = true;
+    isMissingUri = !process.env.MONGODB_URI;
   }
 
   return (
@@ -78,16 +80,41 @@ export default async function Home() {
               <div className="h-12 w-12 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-4">
                 ⚠️
               </div>
-              <h2 className="text-xl font-bold text-foreground mb-2">Configure MongoDB Connection</h2>
-              <p className="text-sm text-muted-foreground mb-6">
-                Please create a <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs">.env.local</code> file in the project root directory and define the connection string:
-              </p>
-              <pre className="bg-muted/80 p-3 rounded-lg text-left text-xs font-mono mb-6 overflow-x-auto text-muted-foreground select-all">
-                MONGODB_URI=mongodb+srv://...
-              </pre>
-              <p className="text-xs text-muted-foreground">
-                Once variables are set, restart your development server to establish the connection.
-              </p>
+              {isMissingUri ? (
+                <>
+                  <h2 className="text-xl font-bold text-foreground mb-2">Configure MongoDB Connection</h2>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Please create a <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs">.env.local</code> file in the project root directory and define the connection string:
+                  </p>
+                  <pre className="bg-muted/80 p-3 rounded-lg text-left text-xs font-mono mb-6 overflow-x-auto text-muted-foreground select-all">
+                    MONGODB_URI=mongodb+srv://...
+                  </pre>
+                  <p className="text-xs text-muted-foreground">
+                    Once variables are set, restart your development server to establish the connection.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-xl font-bold text-foreground mb-2">Database Connection Error</h2>
+                  <p className="text-sm text-muted-foreground mb-4 text-left">
+                    The <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs">MONGODB_URI</code> environment variable is set, but the server failed to connect to the database.
+                  </p>
+                  <div className="text-left text-xs text-muted-foreground space-y-2 mb-6">
+                    <p className="font-semibold text-foreground">Possible causes & solutions:</p>
+                    <ul className="list-disc pl-4 space-y-2">
+                      <li>
+                        <strong>IP Whitelist / Network Access:</strong> If hosted on Vercel/live server, ensure MongoDB Atlas permits access from anywhere (<code className="bg-muted px-1 py-0.5 rounded font-mono text-[10px]">0.0.0.0/0</code>) because live servers use dynamic IPs.
+                      </li>
+                      <li>
+                        <strong>Incorrect Credentials:</strong> Verify username, password, or database name in the connection string.
+                      </li>
+                    </ul>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Once fixed, please restart your server or redeploy your website.
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </section>

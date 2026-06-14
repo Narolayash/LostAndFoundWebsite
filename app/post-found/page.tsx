@@ -42,6 +42,12 @@ export default function PostFoundPage() {
       return;
     }
 
+    // Vercel serverless request body size limit is 4.5MB, keep it safe under 4MB
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error('Image size must be less than 4MB');
+      return;
+    }
+
     setUploading(true);
     const uploadData = new FormData();
     uploadData.append('file', file);
@@ -280,7 +286,7 @@ export default function PostFoundPage() {
               <div className="text-center">
                 <Camera className="h-10 w-10 text-muted-foreground mx-auto mb-2 animate-bounce" />
                 <p className="text-sm text-foreground font-semibold mb-1">Click to upload image</p>
-                <p className="text-xs text-muted-foreground mb-4">PNG, JPG, JPEG up to 5MB</p>
+                <p className="text-xs text-muted-foreground mb-4">PNG, JPG, JPEG up to 4MB</p>
                 <label className="cursor-pointer">
                   <span className="bg-primary text-primary-foreground hover:bg-primary/90 shadow px-4 py-2 rounded-lg text-sm font-medium">
                     {uploading ? 'Uploading...' : 'Select File'}
